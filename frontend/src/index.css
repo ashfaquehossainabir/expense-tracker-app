@@ -737,9 +737,8 @@ button {
 /* ---------- Phones (≤ 480px) ---------- */
 @media (max-width: 480px) {
   .app-header {
-    flex-direction: column;
     align-items: flex-start;
-    gap: 4px;
+    gap: 10px;
   }
   .section-header {
     flex-direction: column;
@@ -782,27 +781,168 @@ button {
   }
 }
 
-/* ---------- Header logout ---------- */
+/* ---------- Avatar button (replaces header logout) ---------- */
 
-.logout-button {
-  font-family: var(--font-mono);
-  font-size: 11.5px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  background: transparent;
-  border: 1px solid var(--line);
-  color: var(--ink-soft);
-  padding: 8px 14px;
-  min-height: 36px;
-  border-radius: 2px;
+.avatar-button {
+  background: none;
+  border: none;
+  padding: 0;
   cursor: pointer;
-  transition: border-color 0.12s ease, color 0.12s ease;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: transform 0.12s ease;
+}
+
+.avatar-button:hover {
+  transform: scale(1.05);
+}
+
+.avatar-circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--ledger-teal);
+  color: var(--card);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  box-shadow: var(--shadow);
+  border: 2px solid var(--card);
+}
+
+.avatar-circle-lg {
+  width: 52px;
+  height: 52px;
+  font-size: 17px;
+  flex-shrink: 0;
+}
+
+@media (pointer: coarse) {
+  .avatar-circle {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+/* ---------- Account settings modal ---------- */
+
+.settings-modal-card {
+  max-width: 460px;
+  padding-bottom: 0;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 40px);
+}
+
+.settings-identity {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-bottom: 18px;
+  border-bottom: 1px dashed var(--line);
+  margin-bottom: 4px;
+}
+
+.settings-identity-text {
+  min-width: 0;
+}
+
+.settings-identity-name {
+  font-weight: 600;
+  font-size: 15px;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.logout-button:hover {
+.settings-identity-email {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--ink-soft);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.settings-body {
+  overflow-y: auto;
+  flex: 1 1 auto;
+  padding: 4px 2px 0;
+  margin: 0 -2px;
+}
+
+.settings-section {
+  padding: 18px 0;
+  border-bottom: 1px dashed var(--line);
+}
+
+.settings-section:first-child {
+  padding-top: 16px;
+}
+
+.settings-section:last-child {
+  border-bottom: none;
+}
+
+.settings-section-title {
+  font-family: var(--font-display);
+  font-size: 14px;
+  letter-spacing: 0.4px;
+  margin: 0 0 14px;
+}
+
+.settings-section .field:last-of-type {
+  margin-bottom: 12px;
+}
+
+.settings-section-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.settings-section-actions .btn {
+  min-height: 40px;
+  padding: 9px 16px;
+}
+
+.settings-success {
+  color: var(--ledger-teal-dark);
+  font-size: 12px;
+  font-family: var(--font-mono);
+  margin-top: -4px;
+  margin-bottom: 12px;
+}
+
+.settings-danger-zone .confirm-text {
+  margin: 0 0 14px;
+}
+
+.settings-logout-row {
+  position: sticky;
+  bottom: 0;
+  background: var(--card);
+  padding: 14px 0 clamp(20px, 5vw, 28px);
+  margin-top: 4px;
+}
+
+.settings-logout-btn {
+  width: 100%;
+  border-color: var(--line);
+}
+
+.settings-logout-btn:hover {
   border-color: var(--stamp-red);
   color: var(--stamp-red);
+}
+
+@media (max-width: 480px) {
+  .settings-section-actions .btn {
+    width: 100%;
+  }
 }
 
 /* ---------- Auth pages (login / register) ---------- */
@@ -871,7 +1011,7 @@ button {
 }
 
 @media (max-width: 480px) {
-  .app-header .logout-button {
-    align-self: flex-end;
+  .app-header .avatar-button {
+    margin-top: 2px;
   }
 }

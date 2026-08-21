@@ -1,5 +1,7 @@
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
+import Expense from "../models/Expense.js";
+import Income from "../models/Income.js";
 
 const signToken = (userId) =>
   jwt.sign({ id: userId }, process.env.JWT_SECRET, {
@@ -67,4 +69,91 @@ export const login = async (req, res) => {
 // GET /api/auth/me
 export const getMe = async (req, res) => {
   res.status(200).json({ user: toPublicUser(req.user) });
+};
+
+// PATCH /api/auth/me — update name and/or email
+export const updateProfile = async (req, res) => {
+  try {
+    const { name, email } = req.body;
+
+    if (!name && !email) {
+      return res.status(400).json({ message: "Provide a name or email to update." });
+    }
+
+    const user = await User.findById(req.user._id);
+
+    if (name) user.name = name;
+
+    if (email && email.toLowerCase().trim() !== user.email) {
+      const existing = await User.findOne({ email: email.toLowerCase().trim() });
+      if (existing) {
+        return res.status(409).json({ message: "An account with that email already exists." });
+      }
+      user.email = email;
+    }
+
+    await user.save();
+    res.status(200).json({ user: toPublicUser(user) });
+  } catch (err) {
+    if (err.name === "ValidationError") {
+      return res.status(400).json({ message: Object.values(err.errors)[0].message });
+    }
+    res.status(500).json({ message: "Couldn't update profile", error: err.message });
+  }
+};
+
+// PATCH /api/auth/me/password — change password
+export const changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res
+        .status(400)
+        .json({ message: "Current password and new password are both required." });
+    }
+
+    const user = await User.findById(req.user._id).select("+password");
+    const isMatch = await user.comparePassword(currentPassword);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Current password is incorrect." });
+    }
+
+    user.password = newPassword;
+    await user.save();
+
+    res.status(200).json({ message: "Password updated successfully." });
+  } catch (err) {
+    if (err.name === "ValidationError") {
+      return res.status(400).json({ message: Object.values(err.errors)[0].message });
+    }
+    res.status(500).json({ message: "Couldn't update password", error: err.message });
+  }
+};
+
+// DELETE /api/auth/me — permanently delete account and all associated data
+export const deleteAccount = async (req, res) => {
+  try {
+    const { password } = req.body;
+
+    if (!password) {
+      return res.status(400).json({ message: "Enter your password to confirm deletion." });
+    }
+
+    const user = await User.findById(req.user._id).select("+password");
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Password is incorrect." });
+    }
+
+    await Promise.all([
+      Expense.deleteMany({ user: user._id }),
+      Income.deleteMany({ user: user._id }),
+    ]);
+    await user.deleteOne();
+
+    res.status(200).json({ message: "Account deleted." });
+  } catch (err) {
+    res.status(500).json({ message: "Couldn't delete account", error: err.message });
+  }
 };

@@ -20,9 +20,12 @@ import IncomeModal from "../components/IncomeModal";
 import EntryDetailModal from "../components/EntryDetailModal";
 import ConfirmDeleteModal from "../components/ConfirmDeleteModal";
 import ConfirmLogoutModal from "../components/ConfirmLogoutModal";
+import UserAvatar from "../components/UserAvatar";
+import AccountSettingsModal from "../components/AccountSettingsModal";
+import ConfirmDeleteAccountModal from "../components/ConfirmDeleteAccountModal";
 
 export default function Dashboard() {
-  const { user, logout } = useAuth();
+  const { user, logout, deleteAccount } = useAuth();
 
   const [expenses, setExpenses] = useState([]);
   const [incomes, setIncomes] = useState([]);
@@ -47,6 +50,9 @@ export default function Dashboard() {
   const [deleting, setDeleting] = useState(false);
 
   const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [deleteAccountConfirmOpen, setDeleteAccountConfirmOpen] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
 
   useEffect(() => {
     loadAll();
@@ -178,6 +184,27 @@ export default function Dashboard() {
     }
   };
 
+  // ---------- Account settings flow ----------
+
+  const requestLogoutFromSettings = () => {
+    setSettingsOpen(false);
+    setLogoutConfirmOpen(true);
+  };
+
+  const requestDeleteAccount = () => {
+    setSettingsOpen(false);
+    setDeleteAccountConfirmOpen(true);
+  };
+
+  const handleDeleteAccountConfirm = async (password) => {
+    setDeletingAccount(true);
+    try {
+      await deleteAccount({ password });
+    } finally {
+      setDeletingAccount(false);
+    }
+  };
+
   return (
     <div className="app-shell">
       <header className="app-header">
@@ -187,9 +214,7 @@ export default function Dashboard() {
             {user ? `${user.name}'s expense register` : "Personal expense register"}
           </div>
         </div>
-        <button className="logout-button" onClick={() => setLogoutConfirmOpen(true)}>
-          Log out
-        </button>
+        <UserAvatar user={user} onClick={() => setSettingsOpen(true)} />
       </header>
 
       <SummaryCard incomes={incomes} expenses={expenses} />
@@ -282,6 +307,20 @@ export default function Dashboard() {
           setLogoutConfirmOpen(false);
           logout();
         }}
+      />
+
+      <AccountSettingsModal
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        onRequestLogout={requestLogoutFromSettings}
+        onRequestDelete={requestDeleteAccount}
+      />
+
+      <ConfirmDeleteAccountModal
+        open={deleteAccountConfirmOpen}
+        onCancel={() => !deletingAccount && setDeleteAccountConfirmOpen(false)}
+        onConfirm={handleDeleteAccountConfirm}
+        deleting={deletingAccount}
       />
     </div>
   );

@@ -1,5 +1,12 @@
 import { createContext, useContext, useEffect, useState, useCallback } from "react";
-import { loginUser, registerUser, fetchMe } from "../api/authApi";
+import {
+  loginUser,
+  registerUser,
+  fetchMe,
+  updateProfile as updateProfileApi,
+  changePassword as changePasswordApi,
+  deleteAccount as deleteAccountApi,
+} from "../api/authApi";
 import { setOnUnauthorized } from "../api/client";
 
 const AuthContext = createContext(null);
@@ -68,6 +75,21 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const updateProfile = async ({ name, email }) => {
+    const data = await updateProfileApi({ name, email });
+    setUser(data.user);
+    return data.user;
+  };
+
+  const changePassword = async ({ currentPassword, newPassword }) => {
+    await changePasswordApi({ currentPassword, newPassword });
+  };
+
+  const deleteAccount = async ({ password }) => {
+    await deleteAccountApi({ password });
+    logout();
+  };
+
   const value = {
     user,
     token,
@@ -77,6 +99,9 @@ export function AuthProvider({ children }) {
     login,
     register,
     logout,
+    updateProfile,
+    changePassword,
+    deleteAccount,
     clearAuthError: () => setAuthError(""),
   };
 
