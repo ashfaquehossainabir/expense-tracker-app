@@ -52,7 +52,7 @@ export default function Register() {
               type="text"
               value={form.name}
               onChange={handleChange("name")}
-              placeholder="Your name"
+              placeholder="Enter your name"
               autoFocus
               autoComplete="name"
             />
@@ -66,7 +66,7 @@ export default function Register() {
               type="email"
               value={form.email}
               onChange={handleChange("email")}
-              placeholder="you@example.com"
+              placeholder="Enter your email address"
               autoComplete="email"
             />
             {errors.email && <div className="field-error">{errors.email}</div>}

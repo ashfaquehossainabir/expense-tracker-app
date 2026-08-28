@@ -50,7 +50,7 @@ export default function Login() {
               type="email"
               value={form.email}
               onChange={handleChange("email")}
-              placeholder="you@example.com"
+              placeholder="Enter your email address"
               autoFocus
               autoComplete="email"
             />
@@ -64,7 +64,7 @@ export default function Login() {
               type="password"
               value={form.password}
               onChange={handleChange("password")}
-              placeholder="••••••••"
+              placeholder="Enter your password"
               autoComplete="current-password"
             />
             {errors.password && <div className="field-error">{errors.password}</div>}
