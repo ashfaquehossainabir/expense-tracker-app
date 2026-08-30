@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import {
   fetchExpenses,
   createExpense,
@@ -352,6 +353,14 @@ export default function Dashboard() {
               </div>
             </div>
             <div className="app-header-right">
+              {user?.role === "admin" && (
+                <Link to="/admin" className="admin-panel-link" title="Admin panel">
+                  <span className="admin-panel-link-icon" aria-hidden="true">
+                    ⚙
+                  </span>
+                  <span className="admin-panel-link-label">Admin</span>
+                </Link>
+              )}
               <UserAvatar user={user} onClick={() => setSettingsOpen(true)} />
             </div>
           </div>
@@ -360,8 +369,18 @@ export default function Dashboard() {
         <div className="app-shell">
           {!showEmptyTabsState && <SummaryCard incomes={incomes} expenses={expenses} />}
 
-          {tabsLoading && <div className="status-line">Loading your tabs…</div>}
-          {loading && !tabsLoading && <div className="status-line">Loading entries…</div>}
+          {tabsLoading && (
+            <div className="status-line status-line-loading">
+              <span className="mini-spinner" aria-hidden="true" />
+              Loading your tabs…
+            </div>
+          )}
+          {loading && !tabsLoading && (
+            <div className="status-line status-line-loading">
+              <span className="mini-spinner" aria-hidden="true" />
+              Loading entries…
+            </div>
+          )}
           {error && <div className="status-line error">{error}</div>}
 
           {showEmptyTabsState && !error && (

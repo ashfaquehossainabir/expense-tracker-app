@@ -13,7 +13,17 @@ const toPublicUser = (user) => ({
   id: user._id,
   name: user.name,
   email: user.email,
+  role: user.role,
+  isActive: user.isActive,
 });
+
+// Comma-separated list of emails (env: ADMIN_EMAILS) that should always be
+// granted the admin role on registration, in addition to the very first
+// account created in a fresh database.
+const adminEmailAllowlist = (process.env.ADMIN_EMAILS || "")
+  .split(",")
+  .map((e) => e.trim().toLowerCase())
+  .filter(Boolean);
 
 // POST /api/auth/register
 export const register = async (req, res) => {
@@ -24,12 +34,19 @@ export const register = async (req, res) => {
       return res.status(400).json({ message: "Name, email, and password are all required." });
     }
 
-    const existing = await User.findOne({ email: email.toLowerCase().trim() });
+    const normalizedEmail = email.toLowerCase().trim();
+    const existing = await User.findOne({ email: normalizedEmail });
     if (existing) {
       return res.status(409).json({ message: "An account with that email already exists." });
     }
 
-    const user = await User.create({ name, email, password });
+    // The first account in a fresh database, or any email on the ADMIN_EMAILS
+    // allowlist, is automatically granted admin access so there's always a
+    // way into the admin panel without manually editing the database.
+    const isFirstUser = (await User.estimatedDocumentCount()) === 0;
+    const role = isFirstUser || adminEmailAllowlist.includes(normalizedEmail) ? "admin" : "user";
+
+    const user = await User.create({ name, email, password, role });
     await Tab.create({ user: user._id, name: "General", order: 0 });
     const token = signToken(user._id);
 
@@ -59,6 +76,12 @@ export const login = async (req, res) => {
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
       return res.status(401).json({ message: "Invalid email or password." });
+    }
+
+    if (!user.isActive) {
+      return res
+        .status(403)
+        .json({ message: "This account has been deactivated. Contact an administrator." });
     }
 
     const token = signToken(user._id);
