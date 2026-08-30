@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import expenseRoutes from "./routes/expenseRoutes.js";
 import incomeRoutes from "./routes/incomeRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
+import tabRoutes from "./routes/tabRoutes.js";
 
 dotenv.config();
 
@@ -27,6 +28,7 @@ app.get("/api/health", (req, res) => res.json({ status: "ok" }));
 app.use("/api/auth", authRoutes);
 app.use("/api/expenses", expenseRoutes);
 app.use("/api/income", incomeRoutes);
+app.use("/api/tabs", tabRoutes);
 
 // Fallback error handler
 app.use((err, req, res, next) => {

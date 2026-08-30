@@ -1,9 +1,13 @@
 import Income from "../models/Income.js";
+import Tab from "../models/Tab.js";
 
-// GET /api/income
+// GET /api/income?tab=<tabId>
 export const getIncomes = async (req, res) => {
   try {
-    const incomes = await Income.find({ user: req.user._id }).sort({
+    const filter = { user: req.user._id };
+    if (req.query.tab) filter.tab = req.query.tab;
+
+    const incomes = await Income.find(filter).sort({
       date: -1,
       createdAt: -1,
     });
@@ -27,13 +31,23 @@ export const getIncomeById = async (req, res) => {
 // POST /api/income
 export const createIncome = async (req, res) => {
   try {
-    const { title, amount, source, date, note } = req.body;
+    const { title, amount, source, date, note, tab } = req.body;
+
+    if (!tab) {
+      return res.status(400).json({ message: "A tab is required to create an income entry." });
+    }
+    const ownedTab = await Tab.findOne({ _id: tab, user: req.user._id });
+    if (!ownedTab) {
+      return res.status(404).json({ message: "Tab not found" });
+    }
+
     const income = await Income.create({
       title,
       amount,
       source,
       date,
       note,
+      tab,
       user: req.user._id,
     });
     res.status(201).json(income);

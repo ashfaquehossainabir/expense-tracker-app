@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 import Expense from "../models/Expense.js";
 import Income from "../models/Income.js";
+import Tab from "../models/Tab.js";
 
 const signToken = (userId) =>
   jwt.sign({ id: userId }, process.env.JWT_SECRET, {
@@ -29,6 +30,7 @@ export const register = async (req, res) => {
     }
 
     const user = await User.create({ name, email, password });
+    await Tab.create({ user: user._id, name: "General", order: 0 });
     const token = signToken(user._id);
 
     res.status(201).json({ token, user: toPublicUser(user) });
@@ -149,6 +151,7 @@ export const deleteAccount = async (req, res) => {
     await Promise.all([
       Expense.deleteMany({ user: user._id }),
       Income.deleteMany({ user: user._id }),
+      Tab.deleteMany({ user: user._id }),
     ]);
     await user.deleteOne();
 

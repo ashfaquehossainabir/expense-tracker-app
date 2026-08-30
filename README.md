@@ -1,12 +1,14 @@
 # Ledger — Expense Tracker
 
 A full-stack expense tracker: React (Vite) frontend + Express/MongoDB backend, with full CRUD
-for both expenses and income, modal-based add/edit/delete flows, JWT authentication
-(register/login), and a running Total Balance (income minus expenses).
+for both expenses and income, a sidebar of user-defined **tabs** that each keep their own
+independent set of income/expense entries, modal-based add/edit/delete flows, JWT
+authentication (register/login), and a running Total Balance (income minus expenses). Fully
+responsive from desktop down to small mobile screens.
 
 ```
 expense-tracker/
-├── backend/     Express API + Mongoose models (User, Expense, Income) + JWT auth
+├── backend/     Express API + Mongoose models (User, Tab, Expense, Income) + JWT auth
 └── frontend/    React app (Vite) with login/register pages and protected routes
 ```
 
@@ -43,6 +45,23 @@ npm run dev
 
 Opens on `http://localhost:5173`. You'll land on `/login` until you register or log in.
 
+## Tabs
+
+Every income/expense entry belongs to a **tab**. Tabs live in the sidebar and let one account
+keep several completely separate registers — e.g. "Personal", "Freelance", "Trip to Japan" —
+each with its own entries, totals, and counts. New accounts get a "General" tab automatically;
+accounts that existed before this feature get one created (and their existing entries moved
+into it) the first time they load the app after upgrading, so nothing is lost.
+
+- Click a tab in the sidebar to switch to it — the summary card, income list, and expense list
+  all reload scoped to that tab.
+- Hover (or tap, on touch devices) a tab to reveal its **rename** (✎) and **delete** (✕) icons.
+  Rename edits in place. Delete asks for confirmation first, since it **permanently removes
+  the tab and every expense/income entry filed under it**.
+- **+ New Tab** at the bottom of the sidebar adds another one.
+- On phones and tablets the sidebar is a slide-in drawer opened with the ☰ button in the
+  header; on laptop/desktop screens (≥1024px) it's a fixed column that's always visible.
+
 ## API reference
 
 ### Auth
@@ -56,11 +75,20 @@ Opens on `http://localhost:5173`. You'll land on `/login` until you register or 
 Register/login body: `{ "name": "...", "email": "...", "password": "..." }` (name only on register).
 Response: `{ "token": "...", "user": { "id", "name", "email" } }`.
 
+### Tabs (all require `Authorization: Bearer <token>`)
+
+| Method | Route          | Description                                                    |
+|--------|----------------|------------------------------------------------------------------|
+| GET    | /api/tabs      | List the user's tabs, each with `expenseCount`/`incomeCount`     |
+| POST   | /api/tabs      | Create a tab — body: `{ "name": "Trip to Japan" }`               |
+| PATCH  | /api/tabs/:id  | Rename a tab — body: `{ "name": "New name" }`                    |
+| DELETE | /api/tabs/:id  | Delete a tab **and every expense/income filed under it**         |
+
 ### Expenses (all require `Authorization: Bearer <token>`)
 
 | Method | Route               | Description                    |
 |--------|---------------------|----------------------------------|
-| GET    | /api/expenses       | List the logged-in user's expenses |
+| GET    | /api/expenses?tab=:tabId | List the user's expenses, optionally scoped to one tab |
 | GET    | /api/expenses/:id   | Get one of the user's expenses     |
 | POST   | /api/expenses       | Create an expense for the user     |
 | PUT    | /api/expenses/:id   | Update the user's own expense      |
@@ -74,7 +102,8 @@ Expense shape:
   "amount": 42.5,
   "category": "Food",
   "date": "2026-08-10",
-  "note": "optional"
+  "note": "optional",
+  "tab": "<tab id — required when creating>"
 }
 ```
 
@@ -84,7 +113,7 @@ Expense shape:
 
 | Method | Route              | Description                       |
 |--------|--------------------|-------------------------------------|
-| GET    | /api/income        | List the logged-in user's income    |
+| GET    | /api/income?tab=:tabId | List the user's income, optionally scoped to one tab |
 | GET    | /api/income/:id     | Get one income entry                |
 | POST   | /api/income        | Create an income entry              |
 | PUT    | /api/income/:id     | Update the user's own income entry  |
@@ -98,7 +127,8 @@ Income shape:
   "amount": 3200,
   "source": "Salary",
   "date": "2026-08-01",
-  "note": "optional"
+  "note": "optional",
+  "tab": "<tab id — required when creating>"
 }
 ```
 
@@ -123,7 +153,9 @@ Income shape:
 - CORS is restricted to `CLIENT_ORIGIN` in `backend/.env` (defaults to the Vite dev server).
 - Passwords are hashed with bcrypt before storage; the password field is never returned by the API.
 - Every expense **and income entry** is scoped to its owning user at the database query level,
-  not just hidden in the UI.
+  not just hidden in the UI. Every expense/income is additionally scoped to a tab (`tab` is a
+  required, indexed reference on both models), and a tab can only be created for, renamed, or
+  deleted by the user who owns it.
 - Form validation happens client-side (required fields, password length/match, amount > 0, valid
   date) and again on the server via the Mongoose schemas.
 - The app is responsive down to small mobile widths (see the media queries in `index.css`).

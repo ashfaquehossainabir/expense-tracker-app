@@ -8,6 +8,12 @@ const incomeSchema = new mongoose.Schema(
       required: true,
       index: true,
     },
+    tab: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Tab",
+      required: true,
+      index: true,
+    },
     title: {
       type: String,
       required: [true, "Title is required"],

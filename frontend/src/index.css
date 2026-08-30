@@ -48,10 +48,282 @@ button {
   outline-offset: 2px;
 }
 
+/* ---------- Layout shell (sidebar + main) ---------- */
+
+.app-layout {
+  display: flex;
+  align-items: stretch;
+  min-height: 100vh;
+}
+
+.app-main {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
 .app-shell {
   max-width: 820px;
   margin: 0 auto;
   padding: clamp(20px, 5vw, 48px) clamp(14px, 4vw, 24px) 80px;
+}
+
+@media (min-width: 1024px) {
+  .app-main {
+    max-width: calc(100% - 264px);
+  }
+}
+
+/* ---------- Sidebar (tabs) ---------- */
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: min(78vw, 280px);
+  background: var(--card);
+  box-shadow: 2px 0 0 var(--line);
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(-100%);
+  transition: transform 0.2s ease;
+}
+
+.sidebar.sidebar-open {
+  transform: translateX(0);
+}
+
+.sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 24, 21, 0.45);
+  z-index: 55;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.sidebar-backdrop.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 16px;
+  border-bottom: 1px solid var(--line);
+  flex-shrink: 0;
+}
+
+.sidebar-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--ink-faint);
+  font-size: 22px;
+  line-height: 1;
+  padding: 4px 6px;
+}
+
+.sidebar-close:hover {
+  color: var(--ink);
+}
+
+.sidebar-list {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.sidebar-tab {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 11px 10px;
+  margin-bottom: 4px;
+  border-radius: 3px;
+  border-left: 3px solid transparent;
+  cursor: pointer;
+  min-height: 44px;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+
+.sidebar-tab:hover,
+.sidebar-tab:focus-visible {
+  background: var(--paper);
+}
+
+.sidebar-tab.active {
+  background: var(--paper);
+  border-left-color: var(--ledger-teal);
+}
+
+.sidebar-tab-name {
+  font-weight: 600;
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.sidebar-tab.active .sidebar-tab-name {
+  color: var(--ledger-teal-dark);
+}
+
+.sidebar-tab-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.sidebar-tab-count {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-faint);
+  min-width: 16px;
+  text-align: center;
+}
+
+.sidebar-tab-actions {
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+
+.sidebar-tab:hover .sidebar-tab-actions,
+.sidebar-tab:focus-within .sidebar-tab-actions {
+  opacity: 1;
+}
+
+.sidebar-tab-actions .icon-button {
+  width: 26px;
+  height: 26px;
+}
+
+@media (pointer: coarse) {
+  .sidebar-tab-actions {
+    opacity: 1;
+  }
+  .sidebar-tab-actions .icon-button {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+.sidebar-tab-editing {
+  cursor: default;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.sidebar-tab-input {
+  width: 100%;
+  border: 1px solid var(--ledger-teal);
+  background: var(--card);
+  padding: 8px 10px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  min-height: 38px;
+  color: var(--ink);
+  border-radius: 2px;
+}
+
+.sidebar-tab-input:focus {
+  outline: none;
+}
+
+.sidebar-tab-error {
+  color: var(--stamp-red);
+  font-size: 11px;
+  font-family: var(--font-mono);
+  margin-top: 4px;
+}
+
+.sidebar-add {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: center;
+  margin: 8px;
+  padding: 11px 10px;
+  min-height: 44px;
+  border: 1px dashed var(--line);
+  border-radius: 3px;
+  background: none;
+  color: var(--ink-soft);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.sidebar-add:hover {
+  border-color: var(--ledger-teal);
+  color: var(--ledger-teal-dark);
+}
+
+.sidebar-add-icon {
+  font-size: 15px;
+}
+
+.sidebar-add.sidebar-add-editing {
+  display: block;
+  border: none;
+  padding: 0 8px 8px;
+  cursor: default;
+}
+
+@media (min-width: 1024px) {
+  .sidebar {
+    position: sticky;
+    top: 0;
+    left: auto;
+    height: 100vh;
+    width: 264px;
+    flex-shrink: 0;
+    transform: none;
+    box-shadow: none;
+    border-right: 1px solid var(--line);
+  }
+
+  .sidebar-backdrop {
+    display: none;
+  }
+
+  .sidebar-close {
+    display: none;
+  }
+}
+
+/* ---------- Empty tabs state ---------- */
+
+.empty-tabs-state {
+  background: var(--card);
+  box-shadow: var(--shadow);
+  padding: clamp(28px, 6vw, 44px) clamp(20px, 5vw, 32px);
+  text-align: center;
+}
+
+.empty-tabs-title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+
+.empty-tabs-state p {
+  color: var(--ink-soft);
+  font-size: 13.5px;
+  line-height: 1.6;
+  max-width: 420px;
+  margin: 0 auto 20px;
 }
 
 /* ---------- Header ---------- */
@@ -62,6 +334,46 @@ button {
   justify-content: space-between;
   margin-bottom: clamp(18px, 4vw, 28px);
   gap: 12px;
+}
+
+.app-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.hamburger-button {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid var(--line);
+  background: var(--card);
+  border-radius: 2px;
+  cursor: pointer;
+  flex-shrink: 0;
+  align-items: center;
+}
+
+.hamburger-button span {
+  display: block;
+  width: 18px;
+  height: 2px;
+  background: var(--ink);
+}
+
+.hamburger-button:hover {
+  border-color: var(--ink);
+}
+
+@media (min-width: 1024px) {
+  .hamburger-button {
+    display: none;
+  }
 }
 
 .app-title {
@@ -78,6 +390,13 @@ button {
   margin-top: 4px;
   text-transform: uppercase;
   letter-spacing: 1.2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.app-header-left > div {
+  min-width: 0;
 }
 
 @media (min-width: 1024px) {
@@ -739,6 +1058,15 @@ button {
   .app-header {
     align-items: flex-start;
     gap: 10px;
+  }
+  .app-header-left {
+    gap: 8px;
+  }
+  .app-title {
+    max-width: 60vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   .section-header {
     flex-direction: column;

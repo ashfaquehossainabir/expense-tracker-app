@@ -1,9 +1,13 @@
 import Expense from "../models/Expense.js";
+import Tab from "../models/Tab.js";
 
-// GET /api/expenses
+// GET /api/expenses?tab=<tabId>
 export const getExpenses = async (req, res) => {
   try {
-    const expenses = await Expense.find({ user: req.user._id }).sort({
+    const filter = { user: req.user._id };
+    if (req.query.tab) filter.tab = req.query.tab;
+
+    const expenses = await Expense.find(filter).sort({
       date: -1,
       createdAt: -1,
     });
@@ -27,13 +31,23 @@ export const getExpenseById = async (req, res) => {
 // POST /api/expenses
 export const createExpense = async (req, res) => {
   try {
-    const { title, amount, category, date, note } = req.body;
+    const { title, amount, category, date, note, tab } = req.body;
+
+    if (!tab) {
+      return res.status(400).json({ message: "A tab is required to create an expense." });
+    }
+    const ownedTab = await Tab.findOne({ _id: tab, user: req.user._id });
+    if (!ownedTab) {
+      return res.status(404).json({ message: "Tab not found" });
+    }
+
     const expense = await Expense.create({
       title,
       amount,
       category,
       date,
       note,
+      tab,
       user: req.user._id,
     });
     res.status(201).json(expense);
