@@ -1354,7 +1354,7 @@ button {
 
 .settings-section-actions {
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
 }
 
 .settings-section-actions .btn {
