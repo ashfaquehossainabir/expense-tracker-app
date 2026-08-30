@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-function SidebarTabItem({ tab, active, onSelect, onRename, onRequestDelete }) {
+function SidebarTabItem({ tab, active, collapsed, onSelect, onRename, onRequestDelete, onNeedExpand }) {
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState(tab.name);
   const [error, setError] = useState("");
@@ -16,6 +16,7 @@ function SidebarTabItem({ tab, active, onSelect, onRename, onRequestDelete }) {
 
   const startEditing = (e) => {
     e.stopPropagation();
+    if (collapsed) onNeedExpand?.();
     setValue(tab.name);
     setError("");
     setEditing(true);
@@ -83,6 +84,9 @@ function SidebarTabItem({ tab, active, onSelect, onRename, onRequestDelete }) {
       }}
       title={tab.name}
     >
+      <span className="sidebar-tab-icon" aria-hidden="true">
+        {tab.name.trim().slice(0, 2).toUpperCase() || "?"}
+      </span>
       <span className="sidebar-tab-name">{tab.name}</span>
       <span className="sidebar-tab-meta">
         <span className="sidebar-tab-count">{entryCount}</span>
@@ -114,7 +118,7 @@ function SidebarTabItem({ tab, active, onSelect, onRename, onRequestDelete }) {
   );
 }
 
-function AddTabRow({ onCreate }) {
+function AddTabRow({ onCreate, collapsed, onNeedExpand }) {
   const [adding, setAdding] = useState(false);
   const [value, setValue] = useState("");
   const [error, setError] = useState("");
@@ -172,8 +176,17 @@ function AddTabRow({ onCreate }) {
   }
 
   return (
-    <button type="button" className="sidebar-add" onClick={() => setAdding(true)}>
-      <span className="sidebar-add-icon">+</span> New Tab
+    <button
+      type="button"
+      className="sidebar-add"
+      onClick={() => {
+        if (collapsed) onNeedExpand?.();
+        setAdding(true);
+      }}
+      title="New tab"
+    >
+      <span className="sidebar-add-icon">+</span>
+      <span className="sidebar-add-label"> New Tab</span>
     </button>
   );
 }
@@ -187,7 +200,13 @@ export default function Sidebar({
   onRequestDeleteTab,
   mobileOpen,
   onCloseMobile,
+  collapsed,
+  onToggleCollapsed,
 }) {
+  const expandIfCollapsed = () => {
+    if (collapsed) onToggleCollapsed?.();
+  };
+
   return (
     <>
       <div
@@ -195,9 +214,21 @@ export default function Sidebar({
         onClick={onCloseMobile}
         aria-hidden="true"
       />
-      <aside className={`sidebar ${mobileOpen ? "sidebar-open" : ""}`} aria-label="Tabs">
+      <aside
+        className={`sidebar ${mobileOpen ? "sidebar-open" : ""} ${collapsed ? "sidebar-collapsed" : ""}`}
+        aria-label="Tabs"
+      >
         <div className="sidebar-header">
           <span className="toolbar-label">Tabs</span>
+          <button
+            type="button"
+            className="sidebar-collapse-toggle"
+            onClick={onToggleCollapsed}
+            aria-label={collapsed ? "Expand tabs sidebar" : "Collapse tabs sidebar"}
+            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            <span className="sidebar-collapse-icon">‹</span>
+          </button>
           <button
             type="button"
             className="sidebar-close"
@@ -214,6 +245,8 @@ export default function Sidebar({
               key={tab._id}
               tab={tab}
               active={tab._id === activeTabId}
+              collapsed={collapsed}
+              onNeedExpand={expandIfCollapsed}
               onSelect={(id) => {
                 onSelectTab(id);
                 onCloseMobile();
@@ -224,7 +257,7 @@ export default function Sidebar({
           ))}
         </nav>
 
-        <AddTabRow onCreate={onCreateTab} />
+        <AddTabRow onCreate={onCreateTab} collapsed={collapsed} onNeedExpand={expandIfCollapsed} />
       </aside>
     </>
   );

@@ -40,6 +40,10 @@ export default function Dashboard() {
   const [tabsLoading, setTabsLoading] = useState(true);
   const [activeTabId, setActiveTabId] = useState(null);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.localStorage.getItem("ledger:sidebarCollapsed") === "1";
+  });
   const [deleteTabTarget, setDeleteTabTarget] = useState(null);
   const [deletingTab, setDeletingTab] = useState(false);
 
@@ -300,6 +304,16 @@ export default function Dashboard() {
 
   const showEmptyTabsState = !tabsLoading && tabs.length === 0;
 
+  const toggleSidebarCollapsed = () => {
+    setSidebarCollapsed((prev) => {
+      const next = !prev;
+      if (typeof window !== "undefined") {
+        window.localStorage.setItem("ledger:sidebarCollapsed", next ? "1" : "0");
+      }
+      return next;
+    });
+  };
+
   return (
     <div className="app-layout">
       <Sidebar
@@ -311,11 +325,13 @@ export default function Dashboard() {
         onRequestDeleteTab={requestDeleteTab}
         mobileOpen={mobileSidebarOpen}
         onCloseMobile={() => setMobileSidebarOpen(false)}
+        collapsed={sidebarCollapsed}
+        onToggleCollapsed={toggleSidebarCollapsed}
       />
 
       <div className="app-main">
-        <div className="app-shell">
-          <header className="app-header">
+        <header className="app-header">
+          <div className="app-header-inner">
             <div className="app-header-left">
               <button
                 type="button"
@@ -327,7 +343,16 @@ export default function Dashboard() {
                 <span />
                 <span />
               </button>
-              <div>
+              <button
+                type="button"
+                className="sidebar-expand-button"
+                onClick={toggleSidebarCollapsed}
+                aria-label="Expand tabs sidebar"
+                title="Expand tabs"
+              >
+                <span className="sidebar-expand-icon">›</span>
+              </button>
+              <div className="app-header-titles">
                 <h1 className="app-title">Ledger</h1>
                 <div className="app-subtitle">
                   {user ? `${user.name}'s expense register` : "Personal expense register"}
@@ -335,9 +360,13 @@ export default function Dashboard() {
                 </div>
               </div>
             </div>
-            <UserAvatar user={user} onClick={() => setSettingsOpen(true)} />
-          </header>
+            <div className="app-header-right">
+              <UserAvatar user={user} onClick={() => setSettingsOpen(true)} />
+            </div>
+          </div>
+        </header>
 
+        <div className="app-shell">
           {!showEmptyTabsState && <SummaryCard incomes={incomes} expenses={expenses} />}
 
           {tabsLoading && <div className="status-line">Loading your tabs…</div>}

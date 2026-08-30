@@ -64,12 +64,17 @@ button {
 .app-shell {
   max-width: 820px;
   margin: 0 auto;
-  padding: clamp(20px, 5vw, 48px) clamp(14px, 4vw, 24px) 80px;
+  padding: clamp(18px, 4vw, 32px) clamp(14px, 4vw, 24px) 80px;
 }
 
 @media (min-width: 1024px) {
   .app-main {
     max-width: calc(100% - 264px);
+    transition: max-width 0.2s ease;
+  }
+
+  .sidebar.sidebar-collapsed ~ .app-main {
+    max-width: calc(100% - 76px);
   }
 }
 
@@ -130,6 +135,51 @@ button {
 
 .sidebar-close:hover {
   color: var(--ink);
+}
+
+.sidebar-collapse-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  border-radius: 2px;
+  cursor: pointer;
+  color: var(--ink-soft);
+  flex-shrink: 0;
+}
+
+.sidebar-collapse-toggle:hover {
+  border-color: var(--ledger-teal);
+  color: var(--ledger-teal-dark);
+}
+
+.sidebar-collapse-icon {
+  font-size: 16px;
+  line-height: 1;
+  transition: transform 0.2s ease;
+}
+
+.sidebar-tab-icon {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--paper);
+  color: var(--ink-soft);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.sidebar-tab.active .sidebar-tab-icon {
+  background: var(--ledger-teal);
+  color: var(--card);
 }
 
 .sidebar-list {
@@ -292,6 +342,7 @@ button {
     transform: none;
     box-shadow: none;
     border-right: 1px solid var(--line);
+    transition: width 0.2s ease;
   }
 
   .sidebar-backdrop {
@@ -299,6 +350,52 @@ button {
   }
 
   .sidebar-close {
+    display: none;
+  }
+
+  .sidebar-collapse-toggle {
+    display: flex;
+  }
+
+  /* ---------- Collapsed sidebar (desktop only) ---------- */
+
+  .sidebar.sidebar-collapsed {
+    width: 76px;
+  }
+
+  .sidebar.sidebar-collapsed .toolbar-label {
+    display: none;
+  }
+
+  .sidebar.sidebar-collapsed .sidebar-header {
+    justify-content: center;
+    padding: 18px 8px;
+  }
+
+  .sidebar.sidebar-collapsed .sidebar-collapse-icon {
+    transform: rotate(180deg);
+  }
+
+  .sidebar.sidebar-collapsed .sidebar-tab {
+    justify-content: center;
+    padding: 10px 6px;
+    gap: 0;
+  }
+
+  .sidebar.sidebar-collapsed .sidebar-tab-name,
+  .sidebar.sidebar-collapsed .sidebar-tab-meta {
+    display: none;
+  }
+
+  .sidebar.sidebar-collapsed .sidebar-tab-icon {
+    display: flex;
+  }
+
+  .sidebar.sidebar-collapsed .sidebar-add {
+    padding: 11px 6px;
+  }
+
+  .sidebar.sidebar-collapsed .sidebar-add-label {
     display: none;
   }
 }
@@ -329,11 +426,22 @@ button {
 /* ---------- Header ---------- */
 
 .app-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: var(--card);
+  border-bottom: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+
+.app-header-inner {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: clamp(18px, 4vw, 28px);
   gap: 12px;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 14px clamp(14px, 4vw, 24px);
 }
 
 .app-header-left {
@@ -376,9 +484,45 @@ button {
   }
 }
 
+/* Header button that re-expands a collapsed desktop sidebar */
+.sidebar-expand-button {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid var(--line);
+  background: var(--card);
+  border-radius: 2px;
+  cursor: pointer;
+  flex-shrink: 0;
+  color: var(--ink-soft);
+}
+
+.sidebar-expand-button:hover {
+  border-color: var(--ledger-teal);
+  color: var(--ledger-teal-dark);
+}
+
+.sidebar-expand-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+@media (min-width: 1024px) {
+  .sidebar.sidebar-collapsed ~ .app-main .sidebar-expand-button {
+    display: flex;
+  }
+}
+
+.app-header-titles {
+  min-width: 0;
+}
+
 .app-title {
   font-family: var(--font-display);
-  font-size: clamp(22px, 5vw, 28px);
+  font-size: clamp(20px, 4vw, 26px);
   letter-spacing: 0.5px;
   margin: 0;
 }
@@ -395,14 +539,25 @@ button {
   white-space: nowrap;
 }
 
-.app-header-left > div {
-  min-width: 0;
+.app-header-right {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
 }
 
 @media (min-width: 1024px) {
   .app-shell {
     max-width: 960px;
-    padding-top: 56px;
+  }
+}
+
+@media (min-width: 1440px) {
+  .app-header-inner {
+    max-width: 1100px;
+  }
+
+  .app-shell {
+    max-width: 1100px;
   }
 }
 
@@ -1055,9 +1210,11 @@ button {
 
 /* ---------- Phones (≤ 480px) ---------- */
 @media (max-width: 480px) {
-  .app-header {
+  .app-header-inner {
     align-items: flex-start;
     gap: 10px;
+    padding-top: 12px;
+    padding-bottom: 12px;
   }
   .app-header-left {
     gap: 8px;
