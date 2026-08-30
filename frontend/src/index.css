@@ -510,6 +510,7 @@ button {
 .app-header-right {
   display: flex;
   align-items: center;
+  gap: 12px;
   flex-shrink: 0;
 }
 
@@ -1655,26 +1656,29 @@ button {
 
 /* ---------- Users table / card list ---------- */
 
+/* Mobile-first: each user is its own clean white card. */
+
 .admin-table-card {
-  background: var(--card);
-  box-shadow: var(--shadow);
-  overflow: hidden;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .admin-user-row {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 14px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  box-shadow: var(--shadow);
   padding: 16px clamp(14px, 3vw, 20px);
-  border-bottom: 1px dashed var(--line);
-}
-
-.admin-user-row:last-child {
-  border-bottom: none;
+  border-left: 3px solid transparent;
 }
 
 .admin-user-row.is-self {
-  background: var(--paper);
+  border-left-color: var(--ledger-teal);
 }
 
 .admin-user-row-head {
@@ -1724,18 +1728,30 @@ button {
   white-space: nowrap;
 }
 
+/* Role / status / joined / entries grouped into one tidy block */
+.admin-user-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 16px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--line);
+}
+
 .admin-user-cell {
   font-size: 13px;
   color: var(--ink);
+  min-width: 0;
 }
 
 .admin-user-cell::before {
-  content: attr(data-label) ": ";
+  content: attr(data-label);
+  display: block;
   font-family: var(--font-mono);
-  font-size: 10.5px;
+  font-size: 10px;
   text-transform: uppercase;
-  letter-spacing: 0.8px;
+  letter-spacing: 0.9px;
   color: var(--ink-faint);
+  margin-bottom: 3px;
 }
 
 .role-badge,
@@ -1768,13 +1784,16 @@ button {
 
 .entries-count {
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 12.5px;
   color: var(--ink-soft);
+  white-space: nowrap;
 }
 
 .admin-user-actions {
   display: flex;
   gap: 8px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--line);
 }
 
 .icon-button:disabled {
@@ -1787,14 +1806,56 @@ button {
   color: var(--ink-soft);
 }
 
-/* Desktop / tablet: switch to an aligned grid, table-like layout */
+/* Small phones: role/status/joined/entries stack in a single column */
+@media (max-width: 380px) {
+  .admin-user-meta {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Tablet and up: collapse the card list back into one continuous,
+   neatly aligned table with a shared white surface and header row. */
 @media (min-width: 768px) {
+  .admin-table-card {
+    background: var(--card);
+    box-shadow: var(--shadow);
+    border-radius: 6px;
+    overflow: hidden;
+    gap: 0;
+  }
+
   .admin-user-row,
   .admin-user-row-head {
     display: grid;
-    grid-template-columns: minmax(160px, 2fr) 90px 110px 110px 130px 116px;
+    grid-template-columns: minmax(160px, 2fr) 90px 110px 110px 140px 116px;
     align-items: center;
     gap: 10px 14px;
+  }
+
+  .admin-user-row {
+    background: var(--card);
+    border: none;
+    border-left: 3px solid transparent;
+    border-radius: 0;
+    border-bottom: 1px dashed var(--line);
+    box-shadow: none;
+    padding: 14px clamp(14px, 3vw, 20px);
+  }
+
+  .admin-user-row:last-child {
+    border-bottom: none;
+  }
+
+  .admin-user-row:hover {
+    background: rgba(31, 111, 92, 0.035);
+  }
+
+  .admin-user-row.is-self {
+    background: var(--card);
+  }
+
+  .admin-user-row.is-self:hover {
+    background: rgba(31, 111, 92, 0.035);
   }
 
   .admin-user-row-head {
@@ -1807,12 +1868,23 @@ button {
     color: var(--ink-faint);
   }
 
+  .admin-user-meta {
+    display: contents;
+  }
+
+  .admin-user-cell {
+    padding-top: 0;
+    border-top: none;
+  }
+
   .admin-user-cell::before {
     content: none;
   }
 
   .admin-user-actions {
     justify-content: flex-end;
+    padding-top: 0;
+    border-top: none;
   }
 }
 
@@ -1820,6 +1892,12 @@ button {
   .admin-user-row,
   .admin-user-row-head {
     grid-template-columns: minmax(200px, 2fr) 100px 120px 120px 150px 130px;
+  }
+}
+
+@media (min-width: 1440px) {
+  .admin-shell {
+    max-width: 1240px;
   }
 }
 

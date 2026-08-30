@@ -213,10 +213,12 @@ export default function AdminDashboard() {
           <div className="admin-table-card">
             <div className="admin-user-row admin-user-row-head" aria-hidden="true">
               <div className="admin-user-identity">Name</div>
-              <div className="admin-user-cell">Role</div>
-              <div className="admin-user-cell">Status</div>
-              <div className="admin-user-cell">Joined</div>
-              <div className="admin-user-cell">Entries</div>
+              <div className="admin-user-meta">
+                <div className="admin-user-cell">Role</div>
+                <div className="admin-user-cell">Status</div>
+                <div className="admin-user-cell">Joined</div>
+                <div className="admin-user-cell">Entries</div>
+              </div>
               <div className="admin-user-actions">Actions</div>
             </div>
 

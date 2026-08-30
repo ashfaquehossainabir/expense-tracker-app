@@ -37,24 +37,26 @@ export default function AdminUserRow({ user, isSelf, onEdit, onToggleStatus, onD
         </div>
       </div>
 
-      <div className="admin-user-cell" data-label="Role">
-        <span className={`role-badge ${user.role === "admin" ? "admin" : ""}`}>{user.role}</span>
-      </div>
+      <div className="admin-user-meta">
+        <div className="admin-user-cell" data-label="Role">
+          <span className={`role-badge ${user.role === "admin" ? "admin" : ""}`}>{user.role}</span>
+        </div>
 
-      <div className="admin-user-cell" data-label="Status">
-        <span className={`status-badge ${user.isActive ? "active" : "inactive"}`}>
-          {user.isActive ? "Active" : "Deactivated"}
-        </span>
-      </div>
+        <div className="admin-user-cell" data-label="Status">
+          <span className={`status-badge ${user.isActive ? "active" : "inactive"}`}>
+            {user.isActive ? "Active" : "Deactivated"}
+          </span>
+        </div>
 
-      <div className="admin-user-cell" data-label="Joined">
-        {formatDate(user.createdAt)}
-      </div>
+        <div className="admin-user-cell" data-label="Joined">
+          {formatDate(user.createdAt)}
+        </div>
 
-      <div className="admin-user-cell" data-label="Entries">
-        <span className="entries-count">
-          {user.expenseCount || 0} exp · {user.incomeCount || 0} inc
-        </span>
+        <div className="admin-user-cell" data-label="Entries">
+          <span className="entries-count">
+            {user.expenseCount || 0} exp · {user.incomeCount || 0} inc
+          </span>
+        </div>
       </div>
 
       <div className="admin-user-actions" data-label="Actions">
