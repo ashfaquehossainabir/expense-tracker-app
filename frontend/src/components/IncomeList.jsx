@@ -1,3 +1,6 @@
+import { useAuth } from "../context/AuthContext";
+import { formatAmount } from "../utils/currency";
+
 const dateFormatter = new Intl.DateTimeFormat("en-US", {
   month: "short",
   day: "2-digit",
@@ -5,6 +8,8 @@ const dateFormatter = new Intl.DateTimeFormat("en-US", {
 });
 
 export default function IncomeList({ incomes, onView, onEdit, onDelete }) {
+  const { user } = useAuth();
+
   if (incomes.length === 0) {
     return (
       <div className="register">
@@ -38,7 +43,9 @@ export default function IncomeList({ incomes, onView, onEdit, onDelete }) {
               <span className="category-tag">{income.source}</span>
             </div>
           </div>
-          <div className="register-amount income">+${Number(income.amount).toFixed(2)}</div>
+          <div className="register-amount income">
+            +{formatAmount(income.amount, user?.currency)}
+          </div>
           <div className="register-actions">
             <button
               className="icon-button"

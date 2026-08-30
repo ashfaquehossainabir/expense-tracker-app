@@ -15,7 +15,11 @@ const toPublicUser = (user) => ({
   email: user.email,
   role: user.role,
   isActive: user.isActive,
+  currency: user.currency,
 });
+
+// Kept in sync with the enum on the User model.
+const SUPPORTED_CURRENCIES = ["BDT", "USD", "EUR", "GBP", "INR", "JPY", "CAD", "AUD", "CNY", "SGD"];
 
 // Comma-separated list of emails (env: ADMIN_EMAILS) that should always be
 // granted the admin role on registration, in addition to the very first
@@ -96,13 +100,17 @@ export const getMe = async (req, res) => {
   res.status(200).json({ user: toPublicUser(req.user) });
 };
 
-// PATCH /api/auth/me — update name and/or email
+// PATCH /api/auth/me — update name, email, and/or currency
 export const updateProfile = async (req, res) => {
   try {
-    const { name, email } = req.body;
+    const { name, email, currency } = req.body;
 
-    if (!name && !email) {
-      return res.status(400).json({ message: "Provide a name or email to update." });
+    if (!name && !email && !currency) {
+      return res.status(400).json({ message: "Provide a name, email, or currency to update." });
+    }
+
+    if (currency && !SUPPORTED_CURRENCIES.includes(currency)) {
+      return res.status(400).json({ message: "That currency isn't supported." });
     }
 
     const user = await User.findById(req.user._id);
@@ -116,6 +124,8 @@ export const updateProfile = async (req, res) => {
       }
       user.email = email;
     }
+
+    if (currency) user.currency = currency;
 
     await user.save();
     res.status(200).json({ user: toPublicUser(user) });

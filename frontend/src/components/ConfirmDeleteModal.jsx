@@ -1,4 +1,8 @@
+import { useAuth } from "../context/AuthContext";
+import { formatAmount } from "../utils/currency";
+
 export default function ConfirmDeleteModal({ open, item, itemLabel = "Entry", onCancel, onConfirm, deleting }) {
+  const { user } = useAuth();
   if (!open) return null;
 
   return (
@@ -20,8 +24,8 @@ export default function ConfirmDeleteModal({ open, item, itemLabel = "Entry", on
 
         <p className="confirm-text">
           Remove <strong>{item?.title}</strong> for{" "}
-          <strong>${Number(item?.amount ?? 0).toFixed(2)}</strong> from the ledger? This can't
-          be undone.
+          <strong>{formatAmount(item?.amount ?? 0, user?.currency)}</strong> from the ledger?
+          This can't be undone.
         </p>
 
         <div className="modal-actions">

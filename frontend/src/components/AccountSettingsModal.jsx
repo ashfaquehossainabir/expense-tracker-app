@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import { SUPPORTED_CURRENCIES, DEFAULT_CURRENCY } from "../utils/currency";
 
 const getInitials = (name, email) => {
   const source = (name || "").trim();
@@ -26,6 +27,9 @@ export default function AccountSettingsModal({ open, onClose, onRequestLogout, o
   const [passwordErrors, setPasswordErrors] = useState({});
   const [passwordStatus, setPasswordStatus] = useState({ saving: false, message: "", error: "" });
 
+  const [currency, setCurrency] = useState(user?.currency || DEFAULT_CURRENCY);
+  const [currencyStatus, setCurrencyStatus] = useState({ saving: false, message: "", error: "" });
+
   useEffect(() => {
     if (!open) return;
     setProfileForm({ name: user?.name ?? "", email: user?.email ?? "" });
@@ -34,6 +38,8 @@ export default function AccountSettingsModal({ open, onClose, onRequestLogout, o
     setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
     setPasswordErrors({});
     setPasswordStatus({ saving: false, message: "", error: "" });
+    setCurrency(user?.currency || DEFAULT_CURRENCY);
+    setCurrencyStatus({ saving: false, message: "", error: "" });
   }, [open, user]);
 
   if (!open) return null;
@@ -70,6 +76,24 @@ export default function AccountSettingsModal({ open, onClose, onRequestLogout, o
         saving: false,
         message: "",
         error: err.response?.data?.message || "Couldn't update your profile. Try again.",
+      });
+    }
+  };
+
+  const handleCurrencyChange = async (e) => {
+    const nextCurrency = e.target.value;
+    const previousCurrency = currency;
+    setCurrency(nextCurrency);
+    setCurrencyStatus({ saving: true, message: "", error: "" });
+    try {
+      await updateProfile({ currency: nextCurrency });
+      setCurrencyStatus({ saving: false, message: "Currency updated.", error: "" });
+    } catch (err) {
+      setCurrency(previousCurrency);
+      setCurrencyStatus({
+        saving: false,
+        message: "",
+        error: err.response?.data?.message || "Couldn't update your currency. Try again.",
       });
     }
   };
@@ -176,6 +200,33 @@ export default function AccountSettingsModal({ open, onClose, onRequestLogout, o
                 </button>
               </div>
             </form>
+          </section>
+
+          <section className="settings-section">
+            <h3 className="settings-section-title">Preferences</h3>
+            <div className="field">
+              <label htmlFor="settings-currency">Currency</label>
+              <select
+                id="settings-currency"
+                value={currency}
+                onChange={handleCurrencyChange}
+                disabled={currencyStatus.saving}
+              >
+                {SUPPORTED_CURRENCIES.map((c) => (
+                  <option key={c.code} value={c.code}>
+                    {c.code} — {c.label}
+                  </option>
+                ))}
+              </select>
+              <div className="field-hint">
+                Applies to how your amounts are displayed across the app.
+              </div>
+            </div>
+
+            {currencyStatus.error && <div className="field-error">{currencyStatus.error}</div>}
+            {currencyStatus.message && (
+              <div className="settings-success">{currencyStatus.message}</div>
+            )}
           </section>
 
           <section className="settings-section">

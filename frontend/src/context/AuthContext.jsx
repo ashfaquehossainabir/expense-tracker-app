@@ -75,8 +75,8 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const updateProfile = async ({ name, email }) => {
-    const data = await updateProfileApi({ name, email });
+  const updateProfile = async ({ name, email, currency }) => {
+    const data = await updateProfileApi({ name, email, currency });
     setUser(data.user);
     return data.user;
   };

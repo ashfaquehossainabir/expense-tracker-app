@@ -1,3 +1,6 @@
+import { useAuth } from "../context/AuthContext";
+import { formatAmount } from "../utils/currency";
+
 const dateFormatter = new Intl.DateTimeFormat("en-US", {
   month: "short",
   day: "2-digit",
@@ -5,6 +8,8 @@ const dateFormatter = new Intl.DateTimeFormat("en-US", {
 });
 
 export default function ExpenseList({ expenses, onView, onEdit, onDelete }) {
+  const { user } = useAuth();
+
   if (expenses.length === 0) {
     return (
       <div className="register">
@@ -38,7 +43,9 @@ export default function ExpenseList({ expenses, onView, onEdit, onDelete }) {
               <span className="category-tag">{expense.category}</span>
             </div>
           </div>
-          <div className="register-amount">-${Number(expense.amount).toFixed(2)}</div>
+          <div className="register-amount">
+            -{formatAmount(expense.amount, user?.currency)}
+          </div>
           <div className="register-actions">
             <button
               className="icon-button"

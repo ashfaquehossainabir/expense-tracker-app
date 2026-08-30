@@ -1,4 +1,9 @@
+import { useAuth } from "../context/AuthContext";
+import { formatAmount } from "../utils/currency";
+
 export default function SummaryCard({ incomes, expenses }) {
+  const { user } = useAuth();
+  const currency = user?.currency;
   const totalIncome = incomes.reduce((sum, i) => sum + Number(i.amount || 0), 0);
   const totalExpenses = expenses.reduce((sum, e) => sum + Number(e.amount || 0), 0);
   const balance = totalIncome - totalExpenses;
@@ -7,16 +12,17 @@ export default function SummaryCard({ incomes, expenses }) {
     <div className="summary-card">
       <div className="summary-eyebrow">Total balance · income minus expenses</div>
       <div className={`summary-total ${balance < 0 ? "negative" : ""}`}>
-        {balance < 0 ? "-" : ""}${Math.abs(balance).toFixed(2)}
+        {balance < 0 ? "-" : ""}
+        {formatAmount(Math.abs(balance), currency)}
       </div>
       <div className="summary-row">
         <div className="summary-stat income">
           Total income
-          <strong>${totalIncome.toFixed(2)}</strong>
+          <strong>{formatAmount(totalIncome, currency)}</strong>
         </div>
         <div className="summary-stat expense">
           Total expenses
-          <strong>${totalExpenses.toFixed(2)}</strong>
+          <strong>{formatAmount(totalExpenses, currency)}</strong>
         </div>
         <div className="summary-stat">
           Entries logged

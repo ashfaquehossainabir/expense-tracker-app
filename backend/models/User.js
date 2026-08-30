@@ -32,6 +32,11 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    currency: {
+      type: String,
+      enum: ["BDT", "USD", "EUR", "GBP", "INR", "JPY", "CAD", "AUD", "CNY", "SGD"],
+      default: "BDT",
+    },
   },
   { timestamps: true }
 );

@@ -1,3 +1,6 @@
+import { useAuth } from "../context/AuthContext";
+import { formatAmount } from "../utils/currency";
+
 const dateFormatter = new Intl.DateTimeFormat("en-US", {
   month: "long",
   day: "2-digit",
@@ -10,6 +13,7 @@ const timeFormatter = new Intl.DateTimeFormat("en-US", {
 });
 
 export default function EntryDetailModal({ open, type, item, onClose, onEdit, onDelete }) {
+  const { user } = useAuth();
   if (!open || !item) return null;
 
   const isIncome = type === "income";
@@ -33,7 +37,8 @@ export default function EntryDetailModal({ open, type, item, onClose, onEdit, on
         </div>
 
         <div className={`detail-amount ${isIncome ? "income" : "expense"}`}>
-          {isIncome ? "+" : "-"}${Number(item.amount).toFixed(2)}
+          {isIncome ? "+" : "-"}
+          {formatAmount(item.amount, user?.currency)}
         </div>
         <div className="detail-entry-title">{item.title}</div>
 
