@@ -343,15 +343,6 @@ export default function Dashboard() {
                 <span />
                 <span />
               </button>
-              <button
-                type="button"
-                className="sidebar-expand-button"
-                onClick={toggleSidebarCollapsed}
-                aria-label="Expand tabs sidebar"
-                title="Expand tabs"
-              >
-                <span className="sidebar-expand-icon">›</span>
-              </button>
               <div className="app-header-titles">
                 <h1 className="app-title">Ledger</h1>
                 <div className="app-subtitle">

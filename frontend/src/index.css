@@ -484,38 +484,6 @@ button {
   }
 }
 
-/* Header button that re-expands a collapsed desktop sidebar */
-.sidebar-expand-button {
-  display: none;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  padding: 0;
-  border: 1px solid var(--line);
-  background: var(--card);
-  border-radius: 2px;
-  cursor: pointer;
-  flex-shrink: 0;
-  color: var(--ink-soft);
-}
-
-.sidebar-expand-button:hover {
-  border-color: var(--ledger-teal);
-  color: var(--ledger-teal-dark);
-}
-
-.sidebar-expand-icon {
-  font-size: 18px;
-  line-height: 1;
-}
-
-@media (min-width: 1024px) {
-  .sidebar.sidebar-collapsed ~ .app-main .sidebar-expand-button {
-    display: flex;
-  }
-}
-
 .app-header-titles {
   min-width: 0;
 }
